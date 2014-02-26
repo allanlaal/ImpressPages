@@ -36,17 +36,17 @@ class Controller extends \Ip\WidgetController
 
         if (!preg_match('/^((http|https):\/\/)/i', $url)) {
             $url = 'http://' . $url;
+
         }
 
         if (preg_match('/^((http|https):\/\/)?(www.)?(player.)?soundcloud.com/i', $url)) {
-            if (preg_match('%www.vimeo.com%i', $url)) {
-                $url = str_replace('www.vimeo.com', 'player.vimeo.com', $url);
-            }
-            if (preg_match('%//vimeo.com%i', $url)) {
-                $url = str_replace('//vimeo.com', '//player.vimeo.com', $url);
-            }
 
-            return $this->renderView('view/soundcloud.php', $url, $data);
+            $url = str_replace('www.soundcloud.com', 'soundcloud.com', $url);
+
+            $track = 5370961;
+            $data['track'] = $track;
+
+            return $this->renderView('view/soundcloud.php',  $url, $data);
         }
 
 
@@ -77,6 +77,7 @@ class Controller extends \Ip\WidgetController
             }
         }
 
+        $variables['track'] = $data['track'];
 
         return ipView($viewFile, $variables)->render();
 
@@ -133,19 +134,14 @@ class Controller extends \Ip\WidgetController
             ));
         $form->addField($field);
 
-        $field = new \Ip\Form\Field\Select(
+        $field = new \Ip\Form\Field\File(
             array(
-                'name' => 'ratio',
-                'label' => __('Aspect ratio', 'ipAdmin', false),
-            ));
-        $values = array(
-            array('16:9', __('16:9', 'ipAdmin', false)),
-            array('4:3', __('4:3', 'ipAdmin', false)),
+                'name' => 'file',
+                'label' => 'Browse'
+            )
         );
-        $field->setValues($values);
+
         $form->addField($field);
-
-
 
         return $form; // Output a string with generated HTML form
     }
