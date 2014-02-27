@@ -91,7 +91,6 @@ class PublicController extends \Ip\Controller
             ipAddJs('Ip/Internal/Content/Widget/Form/assets/FormOptions.js');
             ipAddJs('Ip/Internal/Content/Widget/Html/assets/Html.js');
             ipAddJs('Ip/Internal/Content/Widget/Video/assets/Video.js');
-            ipAddJs('Ip/Internal/Content/Widget/Audio/assets/Audio.js');
             ipAddJs('Ip/Internal/Content/Widget/Image/assets/Image.js');
             ipAddJs('Ip/Internal/Content/Widget/Gallery/assets/Gallery.js');
             ipAddJs('Ip/Internal/Content/Widget/Text/assets/Text.js');

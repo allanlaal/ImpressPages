@@ -1,3 +1,4 @@
+
 /**
  * @package ImpressPages
  *
@@ -41,6 +42,8 @@ var IpWidget_Audio;
         this.onAdd = function () {
             $.proxy(openPopup, this)();
         };
+
+
 
         var openPopup = function () {
             var context = this;
@@ -115,6 +118,27 @@ var IpWidget_Audio;
         }
 
 
+        $('.ipsUploadAudioFile').on('click', function () {
+            ipBrowseFile(addFilesToPopup, {preview: 'list'});
+        });
+
+        function addFilesToPopup(files){
+
+            for (var index = 0; index < files.length; ++index) {
+//                this.find( ".ipsFileList" ).append( '<audio controls><source src="horse.ogg" type="audio/ogg"><source src="horse.mp3" type="audio/mpeg">Your browser does not support the audio element.</audio>' );
+                console.log(files[index].fileName);
+                console.log(files[index].originalUrl);
+                //$('.ipsFileList').append( '<audio controls><source src="' + files[index].originalUrl + '" type="audio/mpeg">Your browser does not support the audio element.</audio>' );
+               // <audio controls><source src="' + files[index].originalUrl + '" type="audio/mpeg">Your browser does not support the audio element.</audio>
+                //$('.ipsFileList').append( $('<audio controls><source src="' + files[index].originalUrl + '" type="audio/mpeg">Your browser does not support the audio element.</audio>') );
+                $('.ipsFileList').append( '<audio preload="none" controls><source src="test.mp3" type="audio/mpeg">Your browser does not support the audio element.</audio>' );
+
+                //$('.ipsFileList').append(  files[index].originalUrl + ' ' );
+            }
+            console.log(files);
+        }
+
     };
 
 })(ip.jQuery);
+

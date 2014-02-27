@@ -4,7 +4,7 @@
 
  *
  */
-namespace Ip\Internal\Content\Widget\Audio;
+namespace Plugin\AudioWidget\Widget\Audio;
 
 
 
@@ -13,6 +13,23 @@ class Controller extends \Ip\WidgetController
 {
     public function getTitle() {
         return __('Audio', 'ipAdmin', false);
+    }
+
+
+
+    /**
+     * Update widget data
+     *
+     * This method is executed each time the widget data is updated.
+     *
+     * @param $widgetId Widget ID
+     * @param $postData
+     * @param $currentData
+     * @return array Data to be stored to the database
+     */
+    public function update ($widgetId, $postData, $currentData)
+    {
+        return $postData;
     }
 
 
@@ -88,10 +105,10 @@ class Controller extends \Ip\WidgetController
 
 
         $form = $this->editForm();
-        $variables = array(
-            'form' => $form
-        );
 
+        $variables = array(
+            'formHtml' => $form
+        );
         return ipView('snippet/edit.php', $variables)->render();
     }
 
@@ -132,15 +149,6 @@ class Controller extends \Ip\WidgetController
                 'name' => 'height',
                 'label' => __('Height', 'ipAdmin', false),
             ));
-        $form->addField($field);
-
-        $field = new \Ip\Form\Field\File(
-            array(
-                'name' => 'file',
-                'label' => 'Browse'
-            )
-        );
-
         $form->addField($field);
 
         return $form; // Output a string with generated HTML form
