@@ -153,8 +153,16 @@ var IpWidget_Audio;
             ipBrowseFile(addFilesToPopup, {preview: 'list'});
         });
 
-        $("#source").change(function() {
-                alert('test');
+        $('select[name=source]').change(function() {
+                if (this.value == "1") {
+                    //$this.popup.find('#ipsAudioSoundcloud').children().hide();
+                    //$this.popup.find('#ipsAudioFile').children().show();
+                    $('.ipsFileList').show();
+                }else{
+                   // $this.popup.find('#ipsAudioSoundcloud').children().show();
+                   // $this.popup.find('#ipsAudioFile').children().hide();
+                    $('.ipsFileList').hide();
+                }
             }
         );
 
