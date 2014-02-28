@@ -46,28 +46,39 @@ class Controller extends \Ip\WidgetController
 
     protected function generateAudioHtml($data)
     {
-        if (empty($data['url'])) {
-            return false;
+        if (isset($data['url'])){
+
+            $url = $data['url'];
+
+            if (!preg_match('/^((http|https):\/\/)/i', $url)) {
+                $url = 'http://' . $url;
+
+            }
+
+            if (preg_match('/^((http|https):\/\/)?(www.)?(player.)?soundcloud.com/i', $url)) {
+
+                $url = str_replace('www.soundcloud.com', 'soundcloud.com', $url);
+
+                $track = 5370961;
+                $data['track'] = $track;
+
+                return $this->renderView('view/soundcloud.php',  $url, $data);
+            }
         }
-        $url = $data['url'];
-
-        if (!preg_match('/^((http|https):\/\/)/i', $url)) {
-            $url = 'http://' . $url;
-
-        }
-
-        if (preg_match('/^((http|https):\/\/)?(www.)?(player.)?soundcloud.com/i', $url)) {
-
-            $url = str_replace('www.soundcloud.com', 'soundcloud.com', $url);
-
-            $track = 5370961;
-            $data['track'] = $track;
-
-            return $this->renderView('view/soundcloud.php',  $url, $data);
-        }
-
+        $output = $this->renderFilePlayersHtml($data);
 
         return false;
+    }
+
+    protected function renderFilePlayersHtml($data) {
+
+        $output = '<div>xxx';
+
+
+        $output .= '</div>';
+
+        return $output;
+
     }
 
     protected function renderView($viewFile, $url, $data) {
@@ -116,6 +127,24 @@ class Controller extends \Ip\WidgetController
     {
         $form = new \Ip\Form();
 
+        // Add values and indexes
+        $values = array(
+            array('1', __('File', 'ipAdmin', false)),
+            array('2', __('Soundcloud', 'ipAdmin', false)),
+        );
+
+// Add a field
+        $form->addField(new \Ip\Form\Field\Select(
+            array(
+                'name' => __('source', 'ipAdmin', false), // set HTML 'name' attribute
+                'values' => $values,
+                'value' => 1
+            )));
+
+        $fieldset = new \Ip\Form\Fieldset('Soundcloud');
+        $fieldset->addAttribute('id', 'ipsAudioSoundcloud');
+        $form->addFieldset($fieldset);
+
         $field = new \Ip\Form\Field\Text(
             array(
                 'name' => 'url',
@@ -143,6 +172,18 @@ class Controller extends \Ip\WidgetController
                 'label' => __('Width', 'ipAdmin', false),
             ));
         $form->addField($field);
+
+        $field = new \Ip\Form\Field\Number(
+            array(
+                'name' => 'height',
+                'label' => __('Height', 'ipAdmin', false),
+            ));
+        $form->addField($field);
+
+
+        $fieldset = new \Ip\Form\Fieldset('File');
+        $fieldset->addAttribute('id', 'ipsAudioFile');
+        $form->addFieldset($fieldset);
 
         $field = new \Ip\Form\Field\Number(
             array(

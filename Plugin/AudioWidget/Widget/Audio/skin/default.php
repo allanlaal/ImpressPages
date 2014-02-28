@@ -5,7 +5,6 @@
         <?php echo isset($audioHtml) ? $audioHtml : ''; ?>
     <?php } ?>
     <div style="clear: both;"></div>
-
 </div>
 
 

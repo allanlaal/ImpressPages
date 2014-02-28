@@ -10,6 +10,9 @@ var IpWidget_Audio;
 
     IpWidget_Audio = function() {
 
+
+        var $this = this;
+
         this.widgetObject = null;
         this.confirmButton = null;
         this.popup = null;
@@ -85,20 +88,44 @@ var IpWidget_Audio;
 
             $.proxy(showHide, context)();
 
-
             this.popup.modal(); // open modal popup
 
             this.confirmButton.off(); // ensure we will not bind second time
             this.confirmButton.on('click', $.proxy(save, this));
+
+            $this.popup.find('.ipsFileList').html(''); // Delete file list
+//            this.popup.append(file); // TODO
+
+            $.each(this.data.audioFiles, function (key, value){
+                $this.popup.find('.ipsFileList').append( '<div draggable="true"><audio controls style="width: 300px; height: 60px;"><source src="' + value + '" type="audio/mpeg">Your browser does not support the audio element.</audio><a href="#" class="ipaButton ipsAudioFileRemove">remove</a> </div>' );
+            });
+
+
+
         };
 
         var save = function () {
+
+            var entry;
+
+            var audioFiles = [];
+
+            var a = this.popup.find('.ipsFileList source');
+
+            for (var i = 0; i < a.length; i++) {
+
+                entry = a[i];
+                audioFiles.push($(entry).attr('src'));
+
+            };
+
             var data = {
                 url: this.url.val(),
                 size: this.size.val(),
                 width: this.width.val(),
                 height: this.height.val(),
-                ratio: this.ratio.val()
+                ratio: this.ratio.val(),
+                audioFiles: audioFiles
             };
 
             this.widgetObject.save(data, 1); // save and reload widget
@@ -117,25 +144,27 @@ var IpWidget_Audio;
             }
         }
 
+        $('.ipsAudioFileRemove').on('click', function () {
+                alert('Remove'); // TODO remove file
+            }
+        );
 
         $('.ipsUploadAudioFile').on('click', function () {
             ipBrowseFile(addFilesToPopup, {preview: 'list'});
         });
 
+        $("#source").change(function() {
+                alert('test');
+            }
+        );
+
+
         function addFilesToPopup(files){
 
             for (var index = 0; index < files.length; ++index) {
-//                this.find( ".ipsFileList" ).append( '<audio controls><source src="horse.ogg" type="audio/ogg"><source src="horse.mp3" type="audio/mpeg">Your browser does not support the audio element.</audio>' );
-                console.log(files[index].fileName);
-                console.log(files[index].originalUrl);
-                //$('.ipsFileList').append( '<audio controls><source src="' + files[index].originalUrl + '" type="audio/mpeg">Your browser does not support the audio element.</audio>' );
-               // <audio controls><source src="' + files[index].originalUrl + '" type="audio/mpeg">Your browser does not support the audio element.</audio>
-                //$('.ipsFileList').append( $('<audio controls><source src="' + files[index].originalUrl + '" type="audio/mpeg">Your browser does not support the audio element.</audio>') );
-                $('.ipsFileList').append( '<audio preload="none" controls><source src="test.mp3" type="audio/mpeg">Your browser does not support the audio element.</audio>' );
-
-                //$('.ipsFileList').append(  files[index].originalUrl + ' ' );
+                $('.ipsFileList').append( '<div draggable="true"><audio controls style="width: 300px; height: 60px;"><source src="' + files[index].originalUrl + '" type="audio/mpeg">Your browser does not support the audio element.</audio><a href="#" class="ipaButton ipsAudioFileRemove">remove</a> </div>' );
             }
-            console.log(files);
+
         }
 
     };

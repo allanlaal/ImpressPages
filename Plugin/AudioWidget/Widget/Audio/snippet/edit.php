@@ -10,9 +10,7 @@
                 <div class="modal-body">
                     <?php echo $formHtml; ?>
 
-                    <div class="ipsFileList"></div>yyy
-                    <audio preload="none" controls><source src="test.mp3" type="audio/mpeg">
-                        Your browser does not support the audio element.</audio>xxx
+                    <div class="ipsFileList"></div>
                     <button type="button" class="btn btn-default ipsUploadAudioFile"><?php echo __('Upload', 'ipAdmin') ?></button>
                 </div>
                 <div class="modal-footer">
