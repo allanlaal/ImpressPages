@@ -46,6 +46,13 @@ class Controller extends \Ip\WidgetController
 
     protected function generateAudioHtml($data)
     {
+
+        $output = $this->renderFilePlayersHtml($data);
+
+        return $output;
+    }
+
+    protected function renderSoundcloudHtml($url) {
         if (isset($data['url'])){
 
             $url = $data['url'];
@@ -65,17 +72,32 @@ class Controller extends \Ip\WidgetController
                 return $this->renderView('view/soundcloud.php',  $url, $data);
             }
         }
-        $output = $this->renderFilePlayersHtml($data);
 
         return false;
+
     }
 
     protected function renderFilePlayersHtml($data) {
 
-        $output = '<div>xxx';
+        $output = '';
+        if (isset($data['audioFiles'])){
+            foreach ($data['audioFiles'] as $fileUrl) {
+                $output .= '<div>';
+                $output .= '<audio controls>';
+                $output .= '<source src="';
+                $output .= esc($fileUrl);
+                $output .= '">';
+                $output .= '</audio>';
+                $output .= '</div>';
+            }
+        }
 
+        if (isset($data['url'])){
+            $track = 5370961;
+            $data['track'] = $track;
 
-        $output .= '</div>';
+            $output .= $this->renderView('view/soundcloud.php',  $url, $data);
+        }
 
         return $output;
 
@@ -129,8 +151,8 @@ class Controller extends \Ip\WidgetController
 
         // Add values and indexes
         $values = array(
-            array('1', __('File', 'ipAdmin', false)),
-            array('2', __('Soundcloud', 'ipAdmin', false)),
+            array('soundcloud', __('Soundcloud', 'ipAdmin', false)),
+            array('file', __('File', 'ipAdmin', false)),
         );
 
 // Add a field
@@ -152,45 +174,9 @@ class Controller extends \Ip\WidgetController
             ));
         $form->addField($field);
 
-        $field = new \Ip\Form\Field\Select(
-            array(
-                'name' => 'size',
-                'label' => __('Size', 'ipAdmin', false),
-            ));
-
-        $values = array(
-            array('auto', __('Auto', 'ipAdmin', false)),
-            array('custom', __('Custom', 'ipAdmin', false)),
-        );
-        $field->setValues($values);
-
-        $form->addField($field);
-
-        $field = new \Ip\Form\Field\Number(
-            array(
-                'name' => 'width',
-                'label' => __('Width', 'ipAdmin', false),
-            ));
-        $form->addField($field);
-
-        $field = new \Ip\Form\Field\Number(
-            array(
-                'name' => 'height',
-                'label' => __('Height', 'ipAdmin', false),
-            ));
-        $form->addField($field);
-
-
         $fieldset = new \Ip\Form\Fieldset('File');
         $fieldset->addAttribute('id', 'ipsAudioFile');
         $form->addFieldset($fieldset);
-
-        $field = new \Ip\Form\Field\Number(
-            array(
-                'name' => 'height',
-                'label' => __('Height', 'ipAdmin', false),
-            ));
-        $form->addField($field);
 
         return $form; // Output a string with generated HTML form
     }

@@ -1,14 +1,13 @@
-
 /**
  * @package ImpressPages
  *
  */
 var IpWidget_Audio;
 
-(function($){
+(function ($) {
     "use strict";
 
-    IpWidget_Audio = function() {
+    IpWidget_Audio = function () {
 
 
         var $this = this;
@@ -47,16 +46,12 @@ var IpWidget_Audio;
         };
 
 
-
         var openPopup = function () {
             var context = this;
             this.popup = $('#ipWidgetAudioPopup');
             this.confirmButton = this.popup.find('.ipsConfirm');
             this.url = this.popup.find('input[name=url]');
-            this.size = this.popup.find('select[name=size]');
-            this.width = this.popup.find('input[name=width]');
-            this.height = this.popup.find('input[name=height]');
-            this.ratio = this.popup.find('select[name=ratio]');
+            this.source = this.popup.find('select[name=source]');
 
             if (this.data.url) {
                 this.url.val(this.data.url);
@@ -64,43 +59,53 @@ var IpWidget_Audio;
                 this.url.val(''); // cleanup value if it was set before
             }
 
-            if (this.data.size) {
-                this.size.val(this.data.size);
-            } else {
-                this.size.val('auto'); // cleanup value if it was set before
-            }
 
-            if (this.data.width) {
-                this.width.val(this.data.width);
-            } else {
-                this.width.val('853'); // cleanup value if it was set before
-            }
 
-            if (this.data.height) {
-                this.height.val(this.data.height);
-            } else {
-                this.height.val('480'); // cleanup value if it was set before
-            }
-
-            this.size.on('change', function () {
-                $.proxy(showHide, context)();
-            });
-
-            $.proxy(showHide, context)();
 
             this.popup.modal(); // open modal popup
 
             this.confirmButton.off(); // ensure we will not bind second time
             this.confirmButton.on('click', $.proxy(save, this));
 
-            $this.popup.find('.ipsFileList').html(''); // Delete file list
+            $this.popup.find('.ipsAudioFileList').html(''); // Delete file list
 //            this.popup.append(file); // TODO
 
-            $.each(this.data.audioFiles, function (key, value){
-                $this.popup.find('.ipsFileList').append( '<div draggable="true"><audio controls style="width: 300px; height: 60px;"><source src="' + value + '" type="audio/mpeg">Your browser does not support the audio element.</audio><a href="#" class="ipaButton ipsAudioFileRemove">remove</a> </div>' );
+            if (typeof this.data.audioFiles != 'undefined')
+                $.each(this.data.audioFiles, function (key, value) {
+
+                    var cloned = $(".ipsAudioFileTemplate").clone().show();
+                    cloned.removeClass('ipsAudioFileTemplate');
+                    cloned.find('source').attr('src', value);
+                    cloned.appendTo('.ipsAudioFileList');
+
+//                    context.popup.find('.ipsAudioFileList').append('<div><button class="btn btn-default ipsAudioFileMove" type="button" title="Drag"><i class="fa fa-arrows"></i></button><audio controls style="width: 300px; height: 60px;"><source src="' + value + '" type="audio/mpeg">Your browser does not support the audio element.</audio><a href="#" class="ipaButton ipsAudioFileRemove">remove</a> </div>');
+                });
+
+
+            this.popup.find(".ipsAudioFileList").sortable({
+                handle: '.ipsAudioFileMove',
+                cancel: false
             });
 
 
+            this.popup.find('.ipsAudioFileRemove').off().on('click', function () {
+                    alert('Remove'); // TODO remove file
+
+                }
+            );
+
+            this.popup.find('.ipsUploadAudioFile').off().on('click', function (e) {
+                e.preventDefault();
+                ipBrowseFile($.proxy(addFilesToPopup, this), {preview: 'list'});
+            });
+
+            this.popup.find('select[name=source]').off().on('change', function(){
+//            $('select[name=source]').change(function () {
+                displaySelectedDialog(this.value);
+
+            });
+
+            displaySelectedDialog(this.data.source);
 
         };
 
@@ -110,21 +115,18 @@ var IpWidget_Audio;
 
             var audioFiles = [];
 
-            var a = this.popup.find('.ipsFileList source');
+            var a = this.popup.find('.ipsAudioFileList source');
 
             for (var i = 0; i < a.length; i++) {
 
                 entry = a[i];
                 audioFiles.push($(entry).attr('src'));
 
-            };
+            }
 
             var data = {
                 url: this.url.val(),
-                size: this.size.val(),
-                width: this.width.val(),
-                height: this.height.val(),
-                ratio: this.ratio.val(),
+                source: this.source.val(),
                 audioFiles: audioFiles
             };
 
@@ -132,46 +134,32 @@ var IpWidget_Audio;
             this.popup.modal('hide');
         };
 
-        var showHide = function () {
-            if (this.size.val() == 'auto') {
-                this.popup.find('.form-group.name-ratio').show();
-                this.popup.find('.form-group.name-width').hide();
-                this.popup.find('.form-group.name-height').hide();
+        function displaySelectedDialog(strDialog) {
+
+            if (strDialog == 'file'){
+                $('#ipsAudioFile').show();
+                $('.ipsAudioFileList').show();
+                $('#ipsAudioSoundcloud').hide();
+                $('.ipsUploadAudioFile').show();
             } else {
-                this.popup.find('.form-group.name-ratio').hide();
-                this.popup.find('.form-group.name-width').show();
-                this.popup.find('.form-group.name-height').show();
+                $('#ipsAudioFile').hide();
+                $('.ipsAudioFileList').hide();
+                $('#ipsAudioSoundcloud').show();
+                $('.ipsUploadAudioFile').hide();
             }
         }
 
-        $('.ipsAudioFileRemove').on('click', function () {
-                alert('Remove'); // TODO remove file
-            }
-        );
-
-        $('.ipsUploadAudioFile').on('click', function () {
-            ipBrowseFile(addFilesToPopup, {preview: 'list'});
-        });
-
-        $('select[name=source]').change(function() {
-                if (this.value == "1") {
-                    //$this.popup.find('#ipsAudioSoundcloud').children().hide();
-                    //$this.popup.find('#ipsAudioFile').children().show();
-                    $('.ipsFileList').show();
-                }else{
-                   // $this.popup.find('#ipsAudioSoundcloud').children().show();
-                   // $this.popup.find('#ipsAudioFile').children().hide();
-                    $('.ipsFileList').hide();
-                }
-            }
-        );
+        function addFilesToPopup(files) {
 
 
-        function addFilesToPopup(files){
+            $.each(files, function (key, value) {
 
-            for (var index = 0; index < files.length; ++index) {
-                $('.ipsFileList').append( '<div draggable="true"><audio controls style="width: 300px; height: 60px;"><source src="' + files[index].originalUrl + '" type="audio/mpeg">Your browser does not support the audio element.</audio><a href="#" class="ipaButton ipsAudioFileRemove">remove</a> </div>' );
-            }
+                var cloned = $(".ipsAudioFileTemplate").clone().show();
+                cloned.removeClass('ipsAudioFileTemplate');
+                cloned.find('source').attr('src', value.originalUrl);
+                cloned.appendTo('.ipsAudioFileList');
+
+            });
 
         }
 
