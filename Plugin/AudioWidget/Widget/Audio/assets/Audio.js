@@ -50,17 +50,16 @@ var IpWidget_Audio;
             var context = this;
             this.popup = $('#ipWidgetAudioPopup');
             this.confirmButton = this.popup.find('.ipsConfirm');
-            this.url = this.popup.find('input[name=url]');
+            this.soundcloudHtml = this.popup.find('input[name=soundcloudHtml]');
             this.source = this.popup.find('select[name=source]');
 
-            if (this.data.url) {
-                this.url.val(this.data.url);
+            if (this.data.soundcloudHtml) {
+                this.soundcloudHtml.val(this.data.soundcloudHtml);
             } else {
-                this.url.val(''); // cleanup value if it was set before
+                this.soundcloudHtml.val(''); // cleanup value if it was set before
             }
 
-
-
+            this.source.find('[value=soundcloud]').attr('selected', 'selected');
 
             this.popup.modal(); // open modal popup
 
@@ -76,9 +75,9 @@ var IpWidget_Audio;
                     var cloned = $(".ipsAudioFileTemplate").clone().show();
                     cloned.removeClass('ipsAudioFileTemplate');
                     cloned.find('source').attr('src', value);
+                    cloned.find('label').html(value);
                     cloned.appendTo('.ipsAudioFileList');
 
-//                    context.popup.find('.ipsAudioFileList').append('<div><button class="btn btn-default ipsAudioFileMove" type="button" title="Drag"><i class="fa fa-arrows"></i></button><audio controls style="width: 300px; height: 60px;"><source src="' + value + '" type="audio/mpeg">Your browser does not support the audio element.</audio><a href="#" class="ipaButton ipsAudioFileRemove">remove</a> </div>');
                 });
 
 
@@ -89,8 +88,7 @@ var IpWidget_Audio;
 
 
             this.popup.find('.ipsAudioFileRemove').off().on('click', function () {
-                    alert('Remove'); // TODO remove file
-
+                    $(this).closest('div').parent().remove();
                 }
             );
 
@@ -100,10 +98,10 @@ var IpWidget_Audio;
             });
 
             this.popup.find('select[name=source]').off().on('change', function(){
-//            $('select[name=source]').change(function () {
                 displaySelectedDialog(this.value);
-
             });
+
+            //this.popup.find('select[name=source]').val('soundcloud');
 
             displaySelectedDialog(this.data.source);
 
@@ -125,7 +123,7 @@ var IpWidget_Audio;
             }
 
             var data = {
-                url: this.url.val(),
+                soundcloudHtml: this.soundcloudHtml.val(),
                 source: this.source.val(),
                 audioFiles: audioFiles
             };
@@ -135,6 +133,9 @@ var IpWidget_Audio;
         };
 
         function displaySelectedDialog(strDialog) {
+            if (strDialog != 'file' && strDialog != 'soundcloud') {
+                strDialog = 'file';
+            }
 
             if (strDialog == 'file'){
                 $('#ipsAudioFile').show();
@@ -147,6 +148,8 @@ var IpWidget_Audio;
                 $('#ipsAudioSoundcloud').show();
                 $('.ipsUploadAudioFile').hide();
             }
+
+            $this.popup.find('select[name=source]').val(strDialog);
         }
 
         function addFilesToPopup(files) {
@@ -157,9 +160,15 @@ var IpWidget_Audio;
                 var cloned = $(".ipsAudioFileTemplate").clone().show();
                 cloned.removeClass('ipsAudioFileTemplate');
                 cloned.find('source').attr('src', value.originalUrl);
+                cloned.find('label').html(value.originalUrl);
                 cloned.appendTo('.ipsAudioFileList');
-
             });
+
+
+            $this.popup.find('.ipsAudioFileRemove').off().on('click', function () {
+                    $(this).closest('div').parent().remove();
+                }
+            );
 
         }
 

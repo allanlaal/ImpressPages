@@ -39,7 +39,6 @@ class Controller extends \Ip\WidgetController
         if ($audioHtml) {
             $data['audioHtml'] = $audioHtml;
         }
-
         return parent::generateHtml($revisionId, $widgetId, $instanceId, $data, $skin);
     }
 
@@ -52,57 +51,43 @@ class Controller extends \Ip\WidgetController
         return $output;
     }
 
-    protected function renderSoundcloudHtml($url) {
-        if (isset($data['url'])){
-
-            $url = $data['url'];
-
-            if (!preg_match('/^((http|https):\/\/)/i', $url)) {
-                $url = 'http://' . $url;
-
-            }
-
-            if (preg_match('/^((http|https):\/\/)?(www.)?(player.)?soundcloud.com/i', $url)) {
-
-                $url = str_replace('www.soundcloud.com', 'soundcloud.com', $url);
-
-                $track = 5370961;
-                $data['track'] = $track;
-
-                return $this->renderView('view/soundcloud.php',  $url, $data);
-            }
-        }
-
-        return false;
-
-    }
 
     protected function renderFilePlayersHtml($data) {
 
-        $output = '';
-        if (isset($data['audioFiles'])){
-            foreach ($data['audioFiles'] as $fileUrl) {
-                $output .= '<div>';
-                $output .= '<audio controls>';
-                $output .= '<source src="';
-                $output .= esc($fileUrl);
-                $output .= '">';
-                $output .= '</audio>';
-                $output .= '</div>';
+        $output = false;
+
+        if (isset($data['source']) && $data['source']=='file') {
+            if (isset($data['audioFiles'])){
+                foreach ($data['audioFiles'] as $fileUrl) {
+                    $output .= '<div>';
+                    $output .= '<audio controls>';
+                    $output .= '<source src="';
+                    $output .= esc($fileUrl);
+                    $output .= '">';
+                    $output .= '</audio>';
+                    $output .= '</div>';
+                }
+            }
+        }else{
+            if (isset($data['soundcloudHtml'])){
+                $output .= $this->renderSoundcloudHtml($data);
             }
         }
-
-        if (isset($data['url'])){
-            $track = 5370961;
-            $data['track'] = $track;
-
-            $output .= $this->renderView('view/soundcloud.php',  $url, $data);
-        }
-
         return $output;
 
     }
 
+    protected function renderSoundcloudHtml($data) {
+
+        $output = null;
+        if (isset($data['soundcloudHtml'])){
+            $soundcloudHtml = $data['soundcloudHtml'];
+
+            return $this->renderView('view/soundcloud.php',  $soundcloudHtml, $data);
+        }
+        return false;
+
+    }
     protected function renderView($viewFile, $url, $data) {
         $variables = array(
             'url' => $url,
@@ -127,7 +112,7 @@ class Controller extends \Ip\WidgetController
             }
         }
 
-        $variables['track'] = $data['track'];
+        $variables['soundcloudHtml'] = $data['soundcloudHtml'];
 
         return ipView($viewFile, $variables)->render();
 
@@ -151,16 +136,15 @@ class Controller extends \Ip\WidgetController
 
         // Add values and indexes
         $values = array(
-            array('soundcloud', __('Soundcloud', 'ipAdmin', false)),
             array('file', __('File', 'ipAdmin', false)),
+            array('soundcloud', __('Soundcloud', 'ipAdmin', false)),
         );
 
 // Add a field
         $form->addField(new \Ip\Form\Field\Select(
             array(
                 'name' => __('source', 'ipAdmin', false), // set HTML 'name' attribute
-                'values' => $values,
-                'value' => 1
+                'values' => $values
             )));
 
         $fieldset = new \Ip\Form\Fieldset('Soundcloud');
@@ -169,8 +153,8 @@ class Controller extends \Ip\WidgetController
 
         $field = new \Ip\Form\Field\Text(
             array(
-                'name' => 'url',
-                'label' => __('Url', 'ipAdmin', false),
+                'name' => 'soundcloudHtml',
+                'label' => __('Embeded HTML', 'ipAdmin', false),
             ));
         $form->addField($field);
 
