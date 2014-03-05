@@ -27,8 +27,8 @@
         <div class="input-group-btn">
             <button class="btn btn-default ipsAudioFileMove" type="button" title="Drag"><i class="fa fa-arrows"></i></button>
         </div>
+        <audio controls style="width: 50%; height: 32px;"><source src="" type="audio/mpeg">Your browser does not support the audio element.</audio>
         <label class="_label"></label>
-        <audio controls style="width: 100%; height: 32px;"><source src="" type="audio/mpeg">Your browser does not support the audio element.</audio>
         <div class="input-group-btn">
             <button class="btn btn-danger ipsAudioFileRemove" type="button" title="Delete"><i class="fa fa-trash-o"></i></button>
         </div>

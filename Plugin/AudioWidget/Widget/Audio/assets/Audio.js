@@ -50,13 +50,13 @@ var IpWidget_Audio;
             var context = this;
             this.popup = $('#ipWidgetAudioPopup');
             this.confirmButton = this.popup.find('.ipsConfirm');
-            this.soundcloudHtml = this.popup.find('input[name=soundcloudHtml]');
+            this.soundcloudUrl = this.popup.find('input[name=soundcloudUrl]');
             this.source = this.popup.find('select[name=source]');
 
-            if (this.data.soundcloudHtml) {
-                this.soundcloudHtml.val(this.data.soundcloudHtml);
+            if (this.data.soundcloudUrl) {
+                this.soundcloudUrl.val(this.data.soundcloudUrl);
             } else {
-                this.soundcloudHtml.val(''); // cleanup value if it was set before
+                this.soundcloudUrl.val(''); // cleanup value if it was set before
             }
 
             this.source.find('[value=soundcloud]').attr('selected', 'selected');
@@ -74,8 +74,8 @@ var IpWidget_Audio;
 
                     var cloned = $(".ipsAudioFileTemplate").clone().show();
                     cloned.removeClass('ipsAudioFileTemplate');
-                    cloned.find('source').attr('src', value);
-                    cloned.find('label').html(value);
+                    cloned.find('source').attr('src', value.fileUrl);
+                    cloned.find('label').html(value.fileName);
                     cloned.appendTo('.ipsAudioFileList');
 
                 });
@@ -118,12 +118,18 @@ var IpWidget_Audio;
             for (var i = 0; i < a.length; i++) {
 
                 entry = a[i];
-                audioFiles.push($(entry).attr('src'));
+
+                var fileEntry = {
+                    fileUrl: $(entry).attr('src'),
+                    fileName: $(entry).parent().parent().find('._label').html()
+                };
+
+                audioFiles.push(fileEntry);
 
             }
 
             var data = {
-                soundcloudHtml: this.soundcloudHtml.val(),
+                soundcloudUrl: this.soundcloudUrl.val(),
                 source: this.source.val(),
                 audioFiles: audioFiles
             };
@@ -160,7 +166,7 @@ var IpWidget_Audio;
                 var cloned = $(".ipsAudioFileTemplate").clone().show();
                 cloned.removeClass('ipsAudioFileTemplate');
                 cloned.find('source').attr('src', value.originalUrl);
-                cloned.find('label').html(value.originalUrl);
+                cloned.find('label').html(value.fileName);
                 cloned.appendTo('.ipsAudioFileList');
             });
 

@@ -1,21 +1,17 @@
 <?php
 /**
  * @package ImpressPages
-
  *
  */
 namespace Plugin\AudioWidget\Widget\Audio;
 
 
-
-
 class Controller extends \Ip\WidgetController
 {
-    public function getTitle() {
+    public function getTitle()
+    {
         return __('Audio', 'ipAdmin', false);
     }
-
-
 
     /**
      * Update widget data
@@ -27,11 +23,10 @@ class Controller extends \Ip\WidgetController
      * @param $currentData
      * @return array Data to be stored to the database
      */
-    public function update ($widgetId, $postData, $currentData)
+    public function update($widgetId, $postData, $currentData)
     {
         return $postData;
     }
-
 
     public function generateHtml($revisionId, $widgetId, $instanceId, $data, $skin)
     {
@@ -42,7 +37,6 @@ class Controller extends \Ip\WidgetController
         return parent::generateHtml($revisionId, $widgetId, $instanceId, $data, $skin);
     }
 
-
     protected function generateAudioHtml($data)
     {
 
@@ -51,72 +45,64 @@ class Controller extends \Ip\WidgetController
         return $output;
     }
 
-
-    protected function renderFilePlayersHtml($data) {
+    protected function renderFilePlayersHtml($data)
+    {
 
         $output = false;
 
-        if (isset($data['source']) && $data['source']=='file') {
-            if (isset($data['audioFiles'])){
-                foreach ($data['audioFiles'] as $fileUrl) {
-                    $output .= '<div>';
-                    $output .= '<audio controls>';
-                    $output .= '<source src="';
-                    $output .= esc($fileUrl);
-                    $output .= '">';
-                    $output .= '</audio>';
-                    $output .= '</div>';
+        if (isset($data['source']) && $data['source'] == 'file') {
+            if (isset($data['audioFiles'])) {
+                foreach ($data['audioFiles'] as $fileData) {
+
+                    if (isset($fileData['fileUrl']) && isset($fileData['fileName'])){
+                        $output .= ipView('view/file.php', array('fileUrl' => $fileData['fileUrl'], 'fileName' => $fileData['fileName']))->render();
+                    }
                 }
             }
-        }else{
-            if (isset($data['soundcloudHtml'])){
-                $output .= $this->renderSoundcloudHtml($data);
+        } else {
+            if (isset($data['soundcloudUrl'])) {
+                $output .= $this->renderSoundcloudUrl($data);
             }
         }
         return $output;
 
     }
 
-    protected function renderSoundcloudHtml($data) {
+    protected function renderSoundcloudUrl($data)
+    {
 
         $output = null;
-        if (isset($data['soundcloudHtml'])){
-            $soundcloudHtml = $data['soundcloudHtml'];
+       if (isset($data['soundcloudUrl'])) {
 
-            return $this->renderView('view/soundcloud.php',  $soundcloudHtml, $data);
+            $url = $data['soundcloudUrl'];
+
+//               $url = 'https://www.soundcloud.com/humanoide/sets/humanoide-en-concert-avec-la/'; //TODO X
+
+            if (!preg_match('/^((http|https):\/\/)/i', $url)) {
+                $url = 'https://' . $url;
+
+            }
+
+            if (preg_match('/^((http|https):\/\/)?(www.)?(player.)?soundcloud.com/i', $url)) {
+
+                //                $url = str_replace('www.soundcloud.com', 'soundcloud.com', $url);
+
+                //                $track = 5370961;
+                //                $data['track'] = $track;
+
+                //                return $this->renderView('view/soundcloud.php',  $url, $data);
+
+
+                //            data['soundcloudUrl'];
+                $soundcloudIframeUrl = str_replace('https://', 'https%3A//', $url);
+                return ipView('view/soundcloud.php', array('soundcloudIframeUrl' => $url));
+            }
         }
         return false;
 
     }
-    protected function renderView($viewFile, $url, $data) {
-        $variables = array(
-            'url' => $url,
-            'style' => '',
-            'iframeStyle' => ''
-        );
 
-        if (!empty($data['size']) && $data['size'] != 'auto') {
-            if (empty($data['width'])) {
-                $data['width'] = 853;
-            }
-            if (empty($data['height'])) {
-                $data['height'] = 480;
-            }
-            $variables['iframeStyle'] = 'width: ' . $data['width'] . 'px; height: ' . $data['height'] . 'px;';
-        } else {
-            $variables['iframeStyle'] = 'height: 100%; width:100%; position: absolute; top: 0; left: 0;';
-            if (!empty($data['ratio']) && $data['ratio'] != '16:9') {
-                $variables['style'] = 'padding-bottom: 75% !important; position: relative;';
-            } else {
-                $variables['style'] = 'padding-bottom: 56.25% !important; position: relative;';
-            }
-        }
 
-        $variables['soundcloudHtml'] = $data['soundcloudHtml'];
-
-        return ipView($viewFile, $variables)->render();
-
-    }
 
     public function adminHtmlSnippet()
     {
@@ -144,6 +130,7 @@ class Controller extends \Ip\WidgetController
         $form->addField(new \Ip\Form\Field\Select(
             array(
                 'name' => __('source', 'ipAdmin', false), // set HTML 'name' attribute
+                'label' => 'Audio source:',
                 'values' => $values
             )));
 
@@ -153,8 +140,8 @@ class Controller extends \Ip\WidgetController
 
         $field = new \Ip\Form\Field\Text(
             array(
-                'name' => 'soundcloudHtml',
-                'label' => __('Embeded HTML', 'ipAdmin', false),
+                'name' => 'soundcloudUrl',
+                'label' => __('Soundcloud URL', 'ipAdmin', false),
             ));
         $form->addField($field);
 
